@@ -51,23 +51,19 @@ class Cargo(BaseModel):
     )
 
     sender_id = Column(
-        Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("senders.id", ondelete="CASCADE"), nullable=False
     )
-    sender_of_cargo = relationship(
+    sender = relationship(
         "Sender",
-        backref="cargoes",
-        primaryjoin="Cargo.sender_id == foreign(Sender.id)",
-        foreign_keys="[Cargo.sender_id]"
+        back_populates="cargoes",
     )
 
     recipient_id = Column(
-        Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("recipients.id", ondelete="CASCADE"), nullable=False
     )
-    recipient_of_cargo = relationship(
+    recipient = relationship(
         "Recipient",
-        backref="cargoes",
-        primaryjoin="Cargo.recipient_id == foreign(Recipient.id)",
-        foreign_keys="[Cargo.recipient_id]"
+        back_populates="cargoes",
     )
 
     dangerous_types = relationship(
@@ -94,29 +90,6 @@ class DangerousType(BaseModel):
     )
 
 
-
-senders_clients = Table(
-    "senders_clients",
-    BaseModel.metadata,
-    Column(
-        "sender_id", ForeignKey("senders.id", ondelete="CASCADE"),  primary_key=True,
-    ),
-    Column(
-        "client_id", ForeignKey("clients.id", ondelete="CASCADE"), primary_key=True
-    ),
-)
-
-recipients_clients = Table(
-    "recipients_clients",
-    BaseModel.metadata,
-    Column(
-        "recipient_id", ForeignKey("recipients.id", ondelete="CASCADE"),  primary_key=True,
-    ),
-    Column(
-        "client_id", ForeignKey("clients.id", ondelete="CASCADE"), primary_key=True
-    ),
-)
-
 class Client(BaseModel):
     __tablename__ = "clients"
     
@@ -137,18 +110,6 @@ class Client(BaseModel):
         foreign_keys="[Cargo.client_id]"
     )
 
-    senders = relationship(
-        "Sender",
-        secondary=senders_clients,
-        cascade="all,delete",
-    )
-
-    recipients = relationship(
-        "Recipient",
-        secondary=recipients_clients,
-        cascade="all,delete",
-    )
-
     def __str__(self) -> str:
         return f"{self.name}"
 
@@ -161,11 +122,15 @@ class Sender(BaseModel):
     customs_address = Column(String(1024), nullable=True)
     adress = Column(String(1024), nullable=True)
 
-    clients = relationship(
-        "Client",
-        secondary=senders_clients,
-        cascade="all,delete",
-        overlaps="senders"
+    # clients = relationship(
+    #     "Client",
+    #     secondary=senders_clients,
+    #     cascade="all,delete",
+    #     overlaps="senders"
+    # )
+    cargoes = relationship(
+        "Cargo",
+        back_populates="sender",
     )
     def __str__(self) -> str:
         return f"{self.name}"
@@ -178,19 +143,15 @@ class Recipient(BaseModel):
     comment = Column(String(1024), nullable=True)
     customs_address = Column(String(1024), nullable=True)
     adress = Column(String(1024), nullable=True)
-    clients = relationship(
-        "Client",
-        secondary=recipients_clients,
-        cascade="all,delete",
-        overlaps="recipients"
-    )
-    # cargoes = relationship(
-    #     "Cargo",
-    #     back_populates="recipient_of_cargo",
-    #     primaryjoin="Cargo.recipient_id == foreign(Recipient.id)",
-    #     # primaryjoin="Cargo.sender_id == foreign(Sender.id)",
-    #     # nullable=True
+    # clients = relationship(
+    #     "Client",
+    #     secondary=recipients_clients,
+    #     cascade="all,delete",
+    #     overlaps="recipients"
     # )
-
+    cargoes = relationship(
+        "Cargo",
+        back_populates="recipient",
+    )
     def __str__(self) -> str:
         return f"{self.name}"
