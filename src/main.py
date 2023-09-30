@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from sqladmin import Admin
-from ui.admin import setup_views
 from src.router import base_router
 from sqlalchemy import create_engine
-
+import ui.admin as ui
 def create_database_engine(db_url = "postgresql://postgres:postgres@localhost/pruszkow_stock"):
     engine = create_engine(db_url)
     return engine
@@ -20,7 +19,18 @@ def setup_di(application, db_engine):
         application,
         db_engine,
     )
-    setup_views(admin)
+
+    admin.add_model_view(ui.CargoView)
+    admin.add_model_view(ui.DangerousTypeView)
+    # admin.add_base_view(ui.SeparationLine)
+
+    admin.add_model_view(ui.ClientView)
+    admin.add_model_view(ui.SenderView)
+    admin.add_model_view(ui.RecipientView)
+    # admin.add_base_view(ui.SeparationLine)
+
+    admin.add_model_view(ui.UserView)
+    admin.add_model_view(ui.RoleView)
     
 
 

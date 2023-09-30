@@ -5,7 +5,7 @@ from sqlalchemy import pool
 from src.database.tables import (
     Base,
     cargo,
-    client,
+    users,
     )
 from alembic import context
 

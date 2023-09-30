@@ -6,10 +6,7 @@ class CargoView(ModelView, model = Cargo):
     # icon =
     column_list =[
         Cargo.id,
-        # Cargo.client,
-        # Cargo.sender,
-        # Cargo.recipient,
-        Cargo.temperature_control,
+        Cargo.client,
         Cargo.name
     ]
 

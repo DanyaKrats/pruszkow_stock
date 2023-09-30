@@ -19,7 +19,7 @@ class Cargo(BaseModel):
     __tablename__ = "cargoes"
     
     name = Column(String(1024), nullable=True)
-    comment = Column(String(1024), nullable=False)
+    comment = Column(String(1024), nullable=True)
 
     height = Column(Float, nullable=False)
     width = Column(Float, nullable=False)
@@ -27,15 +27,15 @@ class Cargo(BaseModel):
     ldm = Column(Float, nullable=True)
 
     weight = Column(Float, nullable=True)
-
+    
     arrival = Column(
         Date, default= datetime.now().date(), nullable=True
     )
+
     departure = Column(
-        Date, default= datetime.now().date(), nullable=True
+        Date, nullable=True
     )
     
-    temperature_control = Column(Boolean, default=False, nullable=False)
     temperature_celsius = Column(Integer, nullable=True)
     
     auto_in_number = Column(String(200), nullable=True)
@@ -88,6 +88,8 @@ class DangerousType(BaseModel):
         cascade="all,delete",
         overlaps="dangerous_types" 
     )
+    def __str__(self) -> str:  # pragma: no cover
+        return f"{self.name}"
 
 
 class Client(BaseModel):
@@ -98,9 +100,6 @@ class Client(BaseModel):
     unique_param = Column(String(100), unique=True, nullable=False)
     allowed = Column(Boolean, default=False, nullable=False)
     
-    senders = Column(String(1024), nullable=False)
-    recipient = Column(String(1024), nullable=False)
-
     country = Column(String(56), nullable=False)
     adress = Column(String(1024), nullable=False)
     
@@ -108,6 +107,11 @@ class Client(BaseModel):
         "Cargo",
         back_populates="client",
         foreign_keys="[Cargo.client_id]"
+    )
+
+    users = relationship(
+        "User",
+        back_populates="client",
     )
 
     def __str__(self) -> str:
@@ -122,12 +126,6 @@ class Sender(BaseModel):
     customs_address = Column(String(1024), nullable=True)
     adress = Column(String(1024), nullable=True)
 
-    # clients = relationship(
-    #     "Client",
-    #     secondary=senders_clients,
-    #     cascade="all,delete",
-    #     overlaps="senders"
-    # )
     cargoes = relationship(
         "Cargo",
         back_populates="sender",
@@ -143,12 +141,7 @@ class Recipient(BaseModel):
     comment = Column(String(1024), nullable=True)
     customs_address = Column(String(1024), nullable=True)
     adress = Column(String(1024), nullable=True)
-    # clients = relationship(
-    #     "Client",
-    #     secondary=recipients_clients,
-    #     cascade="all,delete",
-    #     overlaps="recipients"
-    # )
+    
     cargoes = relationship(
         "Cargo",
         back_populates="recipient",

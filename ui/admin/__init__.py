@@ -1,15 +1,23 @@
 from .cargo import CargoView, DangerousTypeView
 from .client import ClientView, SenderView, RecipientView
-from sqladmin import Admin
+from .users import UserView, RoleView
+from sqladmin import BaseView, expose
 
-all_views = [
-    CargoView, 
-    DangerousTypeView,
-    ClientView,
-    SenderView,
-    RecipientView
-]
+all_views = {
+    1:CargoView, 
+    2:DangerousTypeView,
+    3:ClientView,
+    4:SenderView,
+    5:RecipientView,
+    6:UserView,
+    7:RoleView,
+}
 
-def setup_views(admin:Admin):
-    for view in all_views:
-        admin.add_view(view)
+class SeparationLine(BaseView):
+    name = " "
+
+    # icon = "fa-solid fa-chart-line"
+    # @no_type_check
+    @expose("/", methods=["GET"])
+    def test_page(self, request) -> None:
+        return None
