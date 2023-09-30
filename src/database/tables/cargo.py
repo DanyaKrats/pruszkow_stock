@@ -38,41 +38,41 @@ class Cargo(BaseModel):
     temperature_control = Column(Boolean, default=False, nullable=False)
     temperature_celsius = Column(Integer, nullable=True)
     
-
     auto_in_number = Column(String(200), nullable=True)
     auto_out_number = Column(String(200), nullable=True)
 
     client_id = Column(
         Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
     )
-    # client = relationship(
-    #     "Client",
-    #     back_populates="cargoes",
-    # )
+    client = relationship(
+        "Client",
+        back_populates="cargoes",
+        foreign_keys="[Cargo.client_id]"
+    )
 
     sender_id = Column(
         Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
     )
-    # sender = relationship(
-    #     "Sender",
-    #     back_populates="cargoes",
-    #     # lazy = 'immediate'
-    # )
+    sender = relationship(
+        "Sender",
+        back_populates="cargoes",
+        primaryjoin="Cargo.sender_id == foreign(Sender.id)"
+    )
 
     recipient_id = Column(
         Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
     )
-    # recipient= relationship(
-    #     "Recipient",
-    #     back_populates="cargoes",
-    #     # lazy = 'immediate'
-    # )
+    recipient= relationship(
+        "Recipient",
+        back_populates="cargoes",
+        primaryjoin="Cargo.recipient_id == foreign(Recipient.id)"
+        # primaryjoin="Cargo.recipient_id == Recipient.id"
+    )
 
     dangerous_types = relationship(
         "DangerousType",
         secondary=cargoes_dangerous_types,
         cascade="all,delete",
-        # lazy = '
     )
 
     def __str__(self) -> str:  # pragma: no cover
@@ -131,7 +131,8 @@ class Client(BaseModel):
     
     cargoes = relationship(
         "Cargo",
-        back_populates="clients",
+        back_populates="client",
+        foreign_keys="[Cargo.client_id]"
     )
 
     senders = relationship(
