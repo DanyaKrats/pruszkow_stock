@@ -53,20 +53,21 @@ class Cargo(BaseModel):
     sender_id = Column(
         Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
     )
-    sender = relationship(
+    sender_of_cargo = relationship(
         "Sender",
-        back_populates="cargoes",
-        primaryjoin="Cargo.sender_id == foreign(Sender.id)"
+        backref="cargoes",
+        primaryjoin="Cargo.sender_id == foreign(Sender.id)",
+        foreign_keys="[Cargo.sender_id]"
     )
 
     recipient_id = Column(
         Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
     )
-    recipient= relationship(
+    recipient_of_cargo = relationship(
         "Recipient",
-        back_populates="cargoes",
-        primaryjoin="Cargo.recipient_id == foreign(Recipient.id)"
-        # primaryjoin="Cargo.recipient_id == Recipient.id"
+        backref="cargoes",
+        primaryjoin="Cargo.recipient_id == foreign(Recipient.id)",
+        foreign_keys="[Cargo.recipient_id]"
     )
 
     dangerous_types = relationship(
@@ -89,6 +90,7 @@ class DangerousType(BaseModel):
         "Cargo",
         secondary=cargoes_dangerous_types,
         cascade="all,delete",
+        overlaps="dangerous_types" 
     )
 
 
@@ -163,13 +165,8 @@ class Sender(BaseModel):
         "Client",
         secondary=senders_clients,
         cascade="all,delete",
+        overlaps="senders"
     )
-
-    cargoes = relationship(
-        "Cargo",
-        back_populates="sender",
-    )
-
     def __str__(self) -> str:
         return f"{self.name}"
     
@@ -185,11 +182,15 @@ class Recipient(BaseModel):
         "Client",
         secondary=recipients_clients,
         cascade="all,delete",
+        overlaps="recipients"
     )
-    cargoes = relationship(
-        "Cargo",
-        back_populates="recipient",
-    )
+    # cargoes = relationship(
+    #     "Cargo",
+    #     back_populates="recipient_of_cargo",
+    #     primaryjoin="Cargo.recipient_id == foreign(Recipient.id)",
+    #     # primaryjoin="Cargo.sender_id == foreign(Sender.id)",
+    #     # nullable=True
+    # )
 
     def __str__(self) -> str:
         return f"{self.name}"

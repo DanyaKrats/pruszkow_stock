@@ -3,3 +3,9 @@ run:
 
 env:
 	source .venv/bin/activate
+
+alembic_generate:
+	alembic revision --autogenerate -m "defoult"
+
+heads:
+	alembic upgrade heads
