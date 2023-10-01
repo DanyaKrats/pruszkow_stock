@@ -8,6 +8,7 @@ class ClientView(ModelView, model = Client):
         Client.id,
         Client.name
     ]
+    # column_exclude_list = [Client.senders]
 
 class SenderView(ModelView,  model = Sender):
     # icon =

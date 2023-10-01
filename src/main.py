@@ -1,15 +1,18 @@
 from fastapi import FastAPI
 from sqladmin import Admin
-from src.router import base_router
-from sqlalchemy import create_engine
+from src.api.routes.router import base_router
+
+from src.middleware.sqlalch_sess import AssyncSessionMiddleware
 import ui.admin as ui
-def create_database_engine(db_url = "postgresql://postgres:postgres@localhost/pruszkow_stock"):
-    engine = create_engine(db_url)
-    return engine
+from src.buisness_logic.auth.auth import AdminAuthController
+from src.di.providers import provide_async_session, provide_db
+# from src.di.db import 
+
 
 def get_application(test: bool = False):
     application = FastAPI()
-    db_engine = create_database_engine()
+    db_engine = provide_db()
+    # application.add_middleware(middleware_class=AssyncSessionMiddleware)
     application.include_router(base_router)
     setup_di(application, db_engine)
     return application
@@ -18,6 +21,10 @@ def setup_di(application, db_engine):
     admin = Admin(
         application,
         db_engine,
+        # authentication_backend=AdminAuthController(
+        #     secret_key='123123',
+        #     session=provide_async_session(db_engine)
+        # )
     )
 
     admin.add_model_view(ui.CargoView)
